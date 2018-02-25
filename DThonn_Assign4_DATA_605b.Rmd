@@ -1,0 +1,196 @@
+---
+title: "DATA_605_Assignment_4_Thonn"
+file: DThonn_Assign4_DATA_605
+name: Daniel Thonn
+output:
+  html_document: default
+  pdf_document: default
+course: DATA 605 CUNY MSDA program
+---
+
+** DATA_605_Assignment_4_Thonn - Transformations **
+
+http://rpubs.com/danthonn/364052
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``````{r, echo=TRUE}
+#install.packages("matrixcalc")
+
+library(matrixcalc)
+
+```
+
+** Problem Set 1 **
+
+In this problem, we'll verify using R that SVD and Eigenvalues are related as worked out in the weekly module. Given a $3 \times 2$ matrix $A$
+
+$$A = \left[ {\begin{array}{rrr} 1 & 2 & 3\\ -1 & 0 & 4\ \end{array} } \right]$$
+
+write code in R to compute $X = AA^T$ and $Y = A^T A$
+
+``````{r, echo=TRUE}
+# Create a matrix
+A <- matrix(c(1,-1,2,0,3,4),nrow=2)
+
+# X = A * AT
+X <- A %*% t(A)
+
+# Y = AT * A
+Y <- t(A) %*% A
+
+```
+
+using the built-in commans in R.
+Then, compute the left-singular, singular values, and right-singular vectors of $A$ using the svd command. Examine the two sets of singular vectors and show that they are indeed eigenvectors of $X$ and $Y$. In addition, the two non-zero eigenvalues (the 3rd value will be very close to zero, if not zero) of both $X$ and $Y$ are the same and are squares of the non-zero singular values of A.
+
+
+``````{r, echo=TRUE}
+#Eigenvalues and Eigenvectors of X
+
+EigenVal_X <- round(unlist(eigen(X)[1]),1)
+EigenVal_X
+
+EigenVect_X <- matrix(round(unlist(eigen(X)[2]),1), nrow=2, ncol=2, byrow=FALSE)
+EigenVect_X
+
+```
+
+
+
+
+``````{r, echo=TRUE}
+#Eigenvalues and Eigenvectors of Y
+
+EigenVal_Y <- round(unlist(eigen(Y)[1]),1)
+EigenVal_Y
+
+EigenVect_Y <- matrix(round(unlist(eigen(Y)[2]),1), nrow=3, ncol=3, byrow=FALSE)
+EigenVect_Y
+
+```
+
+
+
+``````{r, echo=TRUE}
+
+# Singular values, Left-singular and Right-singular vectors of A
+
+Singular_A <- round(svd(A)$d,1)
+Singular_A
+
+Left_Singular_A <- round(svd(A)$u,1)
+Left_Singular_A
+
+Right_Singular_A <- round(svd(A)$v,1)
+Right_Singular_A
+
+```
+
+
+``````{r, echo=TRUE}
+
+# Check the singular vectors and that they are eigenvectors of X and Y. 
+
+# compare the Left singular with eigen vector of X
+Left_Singular_A
+EigenVect_X
+
+# compare the Right singular with eigen vector of Y
+Right_Singular_A
+EigenVect_Y
+
+
+```
+
+
+``````{r, echo=TRUE}
+# Check that the two non-zero eigenvalues of both X and Y are the same and are squares of the non-zero singular values of A.  The third value will be approx. zero. 
+
+# Singular values of A
+Singular_A
+
+# Square of the Singular Values - compare to the eigen values of X and Y
+round(Singular_A^2,1)
+
+```
+
+
+``````{r, echo=TRUE}
+# Eigen Values of X is equals the square of the singular values of A
+EigenVal_X
+
+# Eigen Values of Y  equals the square of the singular values of A
+EigenVal_Y
+
+```
+
+
+** Problem Set 2 **
+
+Using the procedure outlined in section 1 of the weekly handout, write a function to compute the inverse of a well-conditioned full-rank square matrix using co-factors. In order to compute the co-factors, you may use built-in commands to compute the determinant. Your function should have the following signature:
+$B$ = myinverse($A$)
+where $A$ is a matrix and B is its inverse and $A \times B = I$. The off-diagonal elements of $I$ should be close to zero, if not zero. Likewise, the diagonal elements should be close to 1, if not 1. Small numerical precision errors are acceptable but the function myinverse should be correct and must use co-factors and determinant of $A$ to compute the inverse. Please submit PS1 and PS2 in an R-markdown document with your first initial and last name.
+
+``````{r, echo=TRUE}
+
+# Create a function to find the cofactors of a matrix A
+cofactor <- function(A) {
+    dim_of_A <- nrow(A)            
+
+    cofactor_calc <- diag(dim_of_A)
+    
+    # loop for rows from 1 to dim_of_A
+    for(i in 1:dim_of_A) {
+        # loops for the columns 
+        for(j in 1:dim_of_A){
+            # Obtain the cofactor for each element i, j 
+            cofactor_calc[i,j] <- det(A[-i,-j]) * ((-1)^(i+j))
+            # cofactor_matrix[i,j] <- det(A[-i,-j]) 
+        }
+    }
+    return(cofactor_calc)
+}
+
+
+myinverse <- function(A) {
+    # obtain the determinant of A
+    det_A <- det(A)
+    
+    # obtain the cofactor of A
+    cofactor_A <- cofactor(A)
+
+    # obtain the inverse
+    inverse_A <- t(cofactor_A) / det_A  
+
+    return(inverse_A)
+}
+
+```
+
+
+Test the function
+``````{r, echo=TRUE}
+# Create a test 3x3 Matrix
+A1 <- matrix(c(1,2,4,2,-1,3,4,0,1), nrow=3, ncol=3, byrow = TRUE)
+A1
+
+# obtain the inverse
+B1 <- round(myinverse(A1),1)
+B1
+
+# check that A1 * B1 shall provide the identity matrix.
+round(A1 %*% B1, 0)
+
+```
+
+**END**
+
+
+``````{r, echo=TRUE}
+
+```
+
+
